@@ -46,6 +46,24 @@ def embed_thumbnail(mp3_path: str, thumbnail_path: str):
     except Exception as e:
         print(f"❌ Failed to embed thumbnail: {e}")
 
+def embed_metadata(mp3_path: str, entry: dict):
+    try:
+        audio = EasyID3(mp3_path)
+    except error:
+        audio = MP3(mp3_path, ID3=ID3)
+        audio.add_tags()
+        audio = EasyID3(mp3_path)
+
+    audio['title'] = entry.get('title', 'Unknown Title')
+    audio['artist'] = entry.get('artist') or entry.get('uploader', 'Unknown Artist')
+    if entry.get('album'):
+        audio['album'] = entry['album']
+    if entry.get('track'):
+        audio['tracknumber'] = str(entry['track'])
+
+    audio.save()
+    print(f"✅ Embedded metadata into {mp3_path}")
+
 def download_audio(url: str):
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -76,6 +94,7 @@ def download_audio(url: str):
 
             if thumbnail_url:
                 thumbnail_path = os.path.join(DOWNLOAD_DIR, f"{title}_thumb.jpg")
+                embed_metadata(mp3_file, entry)
                 download_thumbnail(thumbnail_url, thumbnail_path)
                 embed_thumbnail(mp3_file, thumbnail_path)
                 os.remove(thumbnail_path)
