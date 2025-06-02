@@ -60,7 +60,7 @@ def embed_metadata(mp3_path: str, entry: dict):
     audio['tracknumber'] = str(entry.get('playlist_autonumber', '1'))
     if entry.get('album'):
         audio['album'] = entry['album']
-        audio['albumartist'] = entry.get('uploader')
+        audio['albumartist'] = entry.get('artists')[0]
 
     audio.save()
     print(f"📝 Embedded metadata")
