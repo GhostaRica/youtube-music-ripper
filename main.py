@@ -93,7 +93,7 @@ def youtube_download(url, temp_dir):
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '192',
+            'preferredquality': '256',
         }],
         'noplaylist': False,
         'quiet': False,
