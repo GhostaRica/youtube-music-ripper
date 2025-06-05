@@ -39,7 +39,7 @@ This Python script allows you to download YouTube videos or audio using [`yt-dlp
 4. **Install the required dependencies**
 
    ```bash
-   pip install yt-dlp mutagen pillow requests
+   pip install -r requirements.txt
    ```
 
 # Usage
