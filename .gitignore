@@ -193,5 +193,12 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-downloads/*
+#vs code stuff
 .vscode/*
+
+# Created folders
+downloads/*
+repo/
+
+# Generated files
+last_commit.txt

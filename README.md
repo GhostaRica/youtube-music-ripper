@@ -2,13 +2,13 @@
 
 This Python script allows you to download YouTube videos or audio using [`yt-dlp`](https://github.com/yt-dlp/yt-dlp)
 
-## Features
+# Features
 
 * Download audio from a YouTube URL
 * Automatically embed thumbnails and metadata
 * Easy to run in a virtual environment
 
-## Installation
+# Installation
 
 1. **Clone or download the repository**
 
@@ -42,15 +42,31 @@ This Python script allows you to download YouTube videos or audio using [`yt-dlp
    pip install yt-dlp mutagen pillow requests
    ```
 
-## Usage
+# Usage
+### Recommended: Use the launcher script
 
-Once everything is set up, run the script with a YouTube URL:
+Instead of running `main.py` directly, run the launcher script:
 
 ```bash
-python main.py <youtube_link>
+python launcher.py <youtube_link> [options]
 ```
 
-Replace `<youtube_link>` with the full URL of the video you want to download.
+The launcher script will:
+
+* Automatically check for and download the latest version of the downloader script from GitHub
+* Save the latest commit info
+* Then run `main.py` with all the arguments you provide
+
+### Optional: Run `main.py` directly
+
+If you want to **bypass the launcher’s auto-update functionality**, this is useful incase the machine you are running this on doesn't have git installed this way you can run the downloader script directly:
+
+```bash
+python main.py <youtube_link> [options]
+```
+
+However, running the launcher is recommended to always keep your downloader script up to date.
+Once everything is set up, run the script with a YouTube URL:
 
 ### Example:
 
@@ -58,7 +74,7 @@ Replace `<youtube_link>` with the full URL of the video you want to download.
 python main.py https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
-## 📁 Output
+# 📁 Output
 
 The downloaded file(s) will be saved in the downloads folder located in the same directory as `main.py`, or as specified in the script.
 
@@ -66,7 +82,7 @@ The downloaded file(s) will be saved in the downloads folder located in the same
 * Convert the format (e.g. to MP3)
 * Add metadata like title, artist, or thumbnail
 
-## Deactivation
+# Deactivation
 
 When you’re done, you can deactivate the virtual environment:
 
