@@ -45,54 +45,37 @@ def settings_menu(stdscr):
             selected_idx = int(chr(key)) - 1
         elif key in [10, 13]:  # Enter
             if selected_idx == 0:
-                edit_youtube_api_key(stdscr)
+                edit_setting(
+                    stdscr,
+                    title="✏️ Edit YouTube API Key",
+                    prompt="Enter new API key",
+                    get_value=lambda: settings.youtube_api_key,
+                    set_value=lambda val: setattr(settings, 'youtube_api_key', val),
+                )
             elif selected_idx == 1:
-                edit_download_directory(stdscr)
+                edit_setting(
+                    stdscr,
+                    title="📁 Edit Download Directory",
+                    prompt="Enter new path",
+                    get_value=lambda: settings.download_dir,
+                    set_value=lambda val: setattr(settings, 'download_dir', val),
+                )
             elif selected_idx == 2:
                 break
 
-def edit_youtube_api_key(stdscr):
+def edit_setting(stdscr, title, prompt, get_value, set_value):
     stdscr.clear()
-    helper.print_title(stdscr, "✏️ Edit YouTube API Key\n")
-    stdscr.addstr("Enter new API key (ESC to cancel):\n")
+    helper.print_title(stdscr, f"{title}\n")
+    stdscr.addstr(f"{prompt} (ESC to cancel):\n")
     curses.curs_set(1)
-    curses.echo()
-
-    input_buffer = ""
-    while True:
-        key = stdscr.getch()
-        if key == 27:  # ESC key
-            curses.noecho()
-            curses.curs_set(0)
-            return
-        elif key in (10, 13):  # Enter key
-            break
-        elif key in (8, 127, curses.KEY_BACKSPACE):  # Backspace
-            if input_buffer:
-                input_buffer = input_buffer[:-1]
-                y, x = stdscr.getyx()
-                stdscr.move(y, x - 1)
-                stdscr.delch()
-        else:
-            input_buffer += chr(key)
-            stdscr.addch(key)
-
-    settings.youtube_api_key = input_buffer.strip()
     curses.noecho()
-    curses.curs_set(0)
 
+    input_buffer = get_value() or ""
+    stdscr.addstr(input_buffer)
 
-def edit_download_directory(stdscr):
-    stdscr.clear()
-    helper.print_title(stdscr, "📁 Edit Download Directory\n")
-    stdscr.addstr("Enter new path (ESC to cancel):\n")
-    curses.curs_set(1)
-    curses.echo()
-
-    input_buffer = ""
     while True:
         key = stdscr.getch()
-        if key == 27:  # ESC key
+        if key == 27:  # ESC
             curses.noecho()
             curses.curs_set(0)
             return
@@ -108,7 +91,6 @@ def edit_download_directory(stdscr):
             input_buffer += chr(key)
             stdscr.addch(key)
 
-    settings.download_dir = input_buffer.strip()
+    set_value(input_buffer.strip())
     curses.noecho()
     curses.curs_set(0)
-
