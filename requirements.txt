@@ -1,4 +1,4 @@
 mutagen==1.47.0
 pillow==11.2.1
 requests==2.32.3
-yt-dlp==2025.5.22
+yt-dlp==2025.6.30
