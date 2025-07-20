@@ -29,7 +29,9 @@ def download_menu(stdscr):
                 continue
 
             songs = youtube.get_youtube_playlist(playlist_id)
-            songs = playlist_songs_menu(stdscr, songs)
+            if len(songs) > 1:
+                songs = playlist_songs_menu(stdscr, songs)
+
             start_download(stdscr, songs)
 
         elif "youtu" in url:
