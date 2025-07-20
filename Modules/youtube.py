@@ -11,8 +11,7 @@ from mutagen.easyid3 import EasyID3
 from PIL import Image
 from tempfile import TemporaryDirectory
 
-#from Settings import settings
-API_KEY=""
+from Modules.settings import settings
 
 def youtube_duration_to_seconds(duration:str) -> int:
     days = 0
@@ -40,7 +39,7 @@ def youtube_duration_to_seconds(duration:str) -> int:
 def get_youtube_playlist(playlist_id):
     video_id_list = []
 
-    params = { "part": "contentDetails", "id": playlist_id, "key": API_KEY }
+    params = { "part": "contentDetails", "id": playlist_id, "key": settings.youtube_api_key }
     response = requests.get("https://www.googleapis.com/youtube/v3/playlists", params=params, timeout=5)    
 
     if response.ok:
@@ -51,7 +50,7 @@ def get_youtube_playlist(playlist_id):
 
     # To ensure this doesnt loop forever i use the total video count to limit the loop.
     # But it might stop early as some videos are unavailable or other issues exist therefore shortening the amount of pages.
-    params = { "part": "snippet", "playlistId": playlist_id, "key": API_KEY, "maxResults": 50 }
+    params = { "part": "snippet", "playlistId": playlist_id, "key": settings.youtube_api_key, "maxResults": 50 }
     for x in range(int(total_videos / 50)+1):
         response = requests.get("https://www.googleapis.com/youtube/v3/playlistItems", params=params, timeout=5)
         data = response.json()
@@ -114,7 +113,7 @@ def get_youtube_video(video: list | str) -> list:
     return songs
 
 async def fetch_video_data(session, chunk):
-    params = { "part": "snippet,contentDetails", "id": ",".join(chunk), "key": API_KEY }
+    params = { "part": "snippet,contentDetails", "id": ",".join(chunk), "key": settings.youtube_api_key }
 
     async with session.get("https://www.googleapis.com/youtube/v3/videos", params=params, timeout=5) as response:
         if response.status == 200:
@@ -124,10 +123,6 @@ async def fetch_video_data(session, chunk):
         else:
             print(f"Failed to retrieve video details for chunk: {chunk}, Status: {response.status}")
             return []
-
-
-DOWNLOAD_DIR = "downloads"
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 def sanitize_filename(name: str) -> str:
     return re.sub(r'[\\/*?:"<>|]', "", name)
@@ -235,5 +230,5 @@ def download_song(song: dict):
 
             # Sanitize title for filename and move to download dir
             title = sanitize_filename(song.get('title', info.get('title', 'Unknown Title')))
-            final_path = os.path.join(DOWNLOAD_DIR, f"{title}.mp3")
+            final_path = os.path.join(settings.download_dir, f"{title}.mp3")
             shutil.move(mp3_temp_path, final_path)
