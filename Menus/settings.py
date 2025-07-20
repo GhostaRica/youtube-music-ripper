@@ -70,27 +70,51 @@ def edit_setting(stdscr, title, prompt, get_value, set_value):
     curses.curs_set(1)
     curses.noecho()
 
-    input_buffer = get_value() or ""
-    stdscr.addstr(input_buffer)
+    input_buffer = list(get_value() or "")
+    cursor_pos = len(input_buffer)
+
+    def redraw_input():
+        y, x = stdscr.getyx()
+        stdscr.move(y, 0)
+        stdscr.clrtoeol()
+        stdscr.addstr(''.join(input_buffer))
+        stdscr.move(y, cursor_pos)
+
+    redraw_input()
 
     while True:
         key = stdscr.getch()
+
         if key == 27:  # ESC
-            curses.noecho()
             curses.curs_set(0)
             return
+
         elif key in (10, 13):  # Enter
             break
-        elif key in (8, 127, curses.KEY_BACKSPACE):
-            if input_buffer:
-                input_buffer = input_buffer[:-1]
-                y, x = stdscr.getyx()
-                stdscr.move(y, x - 1)
-                stdscr.delch()
-        else:
-            input_buffer += chr(key)
-            stdscr.addch(key)
 
-    set_value(input_buffer.strip())
-    curses.noecho()
+        elif key in (8, 127, curses.KEY_BACKSPACE):
+            if cursor_pos > 0:
+                cursor_pos -= 1
+                del input_buffer[cursor_pos]
+                redraw_input()
+
+        elif key == curses.KEY_LEFT:
+            if cursor_pos > 0:
+                cursor_pos -= 1
+                y, _ = stdscr.getyx()
+                stdscr.move(y, cursor_pos)
+
+        elif key == curses.KEY_RIGHT:
+            if cursor_pos < len(input_buffer):
+                cursor_pos += 1
+                y, _ = stdscr.getyx()
+                stdscr.move(y, cursor_pos)
+
+        elif 0 <= key <= 255 and chr(key).isprintable():
+            input_buffer.insert(cursor_pos, chr(key))
+            cursor_pos += 1
+            redraw_input()
+
+    set_value(''.join(input_buffer).strip())
     curses.curs_set(0)
+
