@@ -23,6 +23,8 @@ class Settings:
     def __init__(self):
         self._youtube_api_key = JsonConfig.get("YOUTUBE_API_KEY", "")
         self._download_dir = JsonConfig.get("DOWNLOAD_DIR", str(Path.cwd() / "downloads"))
+        self._group_by_artist = JsonConfig.get("GROUP_BY_ARTIST", True)
+        self._group_by_album = JsonConfig.get("GROUP_BY_ALBUM", True)
 
     @property
     def youtube_api_key(self) -> str:
@@ -42,6 +44,26 @@ class Settings:
     def download_dir(self, new_path: str) -> None:
         self._download_dir = new_path
         JsonConfig["DOWNLOAD_DIR"] = new_path
+        self._save_json()
+
+    @property
+    def group_by_artist(self) -> bool:
+        return self._group_by_artist
+
+    @group_by_artist.setter
+    def group_by_artist(self, new_value: bool) -> None:
+        self._group_by_artist = new_value
+        JsonConfig["GROUP_BY_ARTIST"] = new_value
+        self._save_json()
+
+    @property
+    def group_by_album(self) -> bool:
+        return self._group_by_album
+
+    @group_by_album.setter
+    def group_by_album(self, new_value: bool) -> None:
+        self._group_by_album = new_value
+        JsonConfig["GROUP_BY_ALBUM"] = new_value
         self._save_json()
 
     def _save_json(self) -> None:

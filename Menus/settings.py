@@ -8,6 +8,7 @@ def settings_menu(stdscr):
     options = [
         "YouTube API Key",
         "Download Directory",
+        "Group by Album Folder",
         "Return to Main Menu"
     ]
     selected_idx = 0
@@ -19,12 +20,15 @@ def settings_menu(stdscr):
 
         key_display = settings.youtube_api_key or "(not set)"
         dir_display = settings.download_dir or "(not set)"
+        group_by_album = "On" if settings.group_by_album else "Off"
 
         for idx, option in enumerate(options):
             if idx == 0:
                 label = f"{option}: {key_display}"
             elif idx == 1:
                 label = f"{option}: {dir_display}"
+            elif idx == 2:
+                label = f"{option}: {group_by_album}"
             else:
                 label = option
 
@@ -41,8 +45,6 @@ def settings_menu(stdscr):
             selected_idx = (selected_idx - 1) % len(options)
         elif key == curses.KEY_DOWN:
             selected_idx = (selected_idx + 1) % len(options)
-        elif key in [ord("1"), ord("2"), ord("3")]:
-            selected_idx = int(chr(key)) - 1
         elif key in [10, 13]:  # Enter
             if selected_idx == 0:
                 edit_setting(
@@ -60,7 +62,11 @@ def settings_menu(stdscr):
                     get_value=lambda: settings.download_dir,
                     set_value=lambda val: setattr(settings, 'download_dir', val),
                 )
+
             elif selected_idx == 2:
+                settings.group_by_album = not settings.group_by_album
+
+            elif selected_idx == 3:
                 break
 
 def edit_setting(stdscr, title, prompt, get_value, set_value):

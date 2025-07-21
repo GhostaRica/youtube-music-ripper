@@ -39,12 +39,15 @@ def youtube_duration_to_seconds(duration:str) -> int:
 def get_youtube_playlist(playlist_id):
     video_id_list = []
 
-    params = { "part": "contentDetails", "id": playlist_id, "key": settings.youtube_api_key }
+    params = { "part": "contentDetails,snippet", "id": playlist_id, "key": settings.youtube_api_key }
     response = requests.get("https://www.googleapis.com/youtube/v3/playlists", params=params, timeout=5)    
 
     if response.ok:
         playlist = response.json()
-        total_videos = playlist["items"][0]["contentDetails"]["itemCount"] 
+        total_videos = playlist["items"][0]["contentDetails"]["itemCount"]
+        album = playlist["items"][0]["snippet"]["title"]
+
+
     else:        
         raise Exception(f"Failed to retrieve playlist details: \nAre you sure the playlist is not set to private?") 
 
@@ -64,10 +67,10 @@ def get_youtube_playlist(playlist_id):
         else:
             params["pageToken"]= next_page_token
 
-    output = get_youtube_video(video_id_list)
+    output = get_youtube_video(video_id_list, album)
     return output
 
-def get_youtube_video(video: list | str) -> list:
+def get_youtube_video(video: list | str, album: str) -> list:
     video_id_list = []
 
     if isinstance(video, str):
@@ -108,7 +111,7 @@ def get_youtube_video(video: list | str) -> list:
         title = video["snippet"]["title"]
         duration = youtube_duration_to_seconds(video["contentDetails"]["duration"])
         
-        songs.append({"title": title, "duration": duration, "id": video["id"], "selected": True})
+        songs.append({"title": title, "album": album, "duration": duration, "id": video["id"], "selected": True})
 
     return songs
 
@@ -230,5 +233,14 @@ def download_song(song: dict):
 
             # Sanitize title for filename and move to download dir
             title = sanitize_filename(song.get('title', info.get('title', 'Unknown Title')))
-            final_path = os.path.join(settings.download_dir, f"{title}.mp3")
+
+            if settings.group_by_album:
+                raw_album_name = song.get("album")
+                clean_album_name = re.sub(r'(?i)^album\s*-\s*', '', raw_album_name).strip()
+                album_name = sanitize_filename(clean_album_name)
+                final_dir = os.path.join(settings.download_dir, album_name)
+
+            os.makedirs(final_dir, exist_ok=True)
+            final_path = os.path.join(final_dir, f"{title}.mp3")
+
             shutil.move(mp3_temp_path, final_path)
