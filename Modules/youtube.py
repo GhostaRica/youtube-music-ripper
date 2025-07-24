@@ -148,7 +148,7 @@ def crop_thumbnail_to_square(path: str):
     img_cropped = img.crop((left, top, right, bottom))
     img_cropped.save(path)
 
-def embed_metadata(mp3_path: str, entry: dict):
+def embed_metadata(mp3_path: str, entry: dict, tracknumber: int = 1):
     try:
         audio = EasyID3(mp3_path)
     except error:
@@ -159,7 +159,7 @@ def embed_metadata(mp3_path: str, entry: dict):
     audio['title'] = entry.get('title', 'Unknown Title')
     audio['artist'] = entry.get('artist') or entry.get('uploader', 'Unknown Artist')
     audio['date'] = str(entry.get('release_year', "Unknown Year"))
-    audio['tracknumber'] = str(entry.get('playlist_autonumber', '1'))
+    audio['tracknumber'] = str(tracknumber)
     if entry.get('album'):
         audio['album'] = entry['album']
         artists = entry.get('artists')
@@ -184,7 +184,7 @@ def embed_thumbnail(mp3_path: str, thumbnail_path: str):
         ))
     audio.save()
 
-def download_song(song: dict):
+def download_song(song: dict, track_number: int = 1):
     """
     Downloads a single song dict with keys at least 'title' and 'id'.
     Downloads best audio, converts to mp3, embeds metadata and thumbnail,
@@ -229,7 +229,7 @@ def download_song(song: dict):
                 os.remove(thumbnail_path)
             
             # Embed metadata (some fields might be missing, fallback accordingly)
-            embed_metadata(mp3_temp_path, info)
+            embed_metadata(mp3_temp_path, info, track_number)
 
             # Sanitize title for filename and move to download dir
             title = sanitize_filename(song.get('title', info.get('title', 'Unknown Title')))

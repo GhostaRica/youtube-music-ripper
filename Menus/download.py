@@ -147,7 +147,7 @@ def start_download(stdscr, songs):
         stdscr.addstr(2, 0, f"Currently downloading: ({index + 1}/{total}): {song['title']}")
         stdscr.refresh()
 
-        youtube.download_song(song)
+        youtube.download_song(song, index+1)
 
     stdscr.addstr(4, 0, "All songs downloaded. Press any key to return.")
     stdscr.refresh()
