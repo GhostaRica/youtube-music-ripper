@@ -1,5 +1,5 @@
 import curses
-from Modules.settings import settings
+from Modules.config import CONFIG
 from Menus import helper
 
 def settings_menu(stdscr):
@@ -18,9 +18,9 @@ def settings_menu(stdscr):
         helper.print_title(stdscr, "⚙️ Settings")
         stdscr.addstr("Use ↑↓ to navigate, Enter to select.\n\n")
 
-        key_display = settings.youtube_api_key or "(not set)"
-        dir_display = settings.download_dir or "(not set)"
-        group_by_album = "On" if settings.group_by_album else "Off"
+        key_display = CONFIG.youtube_api_key or "(not set)"
+        dir_display = CONFIG.download_dir or "(not set)"
+        group_by_album = "On" if CONFIG.group_by_album else "Off"
 
         for idx, option in enumerate(options):
             if idx == 0:
@@ -51,20 +51,20 @@ def settings_menu(stdscr):
                     stdscr,
                     title="✏️ Edit YouTube API Key",
                     prompt="Enter new API key",
-                    get_value=lambda: settings.youtube_api_key,
-                    set_value=lambda val: setattr(settings, 'youtube_api_key', val),
+                    get_value=lambda: CONFIG.youtube_api_key,
+                    set_value=lambda val: setattr(CONFIG, 'youtube_api_key', val),
                 )
             elif selected_idx == 1:
                 edit_setting(
                     stdscr,
                     title="📁 Edit Download Directory",
                     prompt="Enter new path",
-                    get_value=lambda: settings.download_dir,
-                    set_value=lambda val: setattr(settings, 'download_dir', val),
+                    get_value=lambda: CONFIG.download_dir,
+                    set_value=lambda val: setattr(CONFIG, 'download_dir', val),
                 )
 
             elif selected_idx == 2:
-                settings.group_by_album = not settings.group_by_album
+                CONFIG.group_by_album = not CONFIG.group_by_album
 
             elif selected_idx == 3:
                 break

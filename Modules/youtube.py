@@ -11,7 +11,7 @@ from mutagen.easyid3 import EasyID3
 from PIL import Image
 from tempfile import TemporaryDirectory
 
-from Modules.settings import settings
+from Modules.config import CONFIG
 
 def youtube_duration_to_seconds(duration:str) -> int:
     days = 0
@@ -39,7 +39,7 @@ def youtube_duration_to_seconds(duration:str) -> int:
 def get_youtube_playlist(playlist_id):
     video_id_list = []
 
-    params = { "part": "contentDetails,snippet", "id": playlist_id, "key": settings.youtube_api_key }
+    params = { "part": "contentDetails,snippet", "id": playlist_id, "key": CONFIG.youtube_api_key }
     response = requests.get("https://www.googleapis.com/youtube/v3/playlists", params=params, timeout=5)    
 
     if response.ok:
@@ -53,7 +53,7 @@ def get_youtube_playlist(playlist_id):
 
     # To ensure this doesnt loop forever i use the total video count to limit the loop.
     # But it might stop early as some videos are unavailable or other issues exist therefore shortening the amount of pages.
-    params = { "part": "snippet", "playlistId": playlist_id, "key": settings.youtube_api_key, "maxResults": 50 }
+    params = { "part": "snippet", "playlistId": playlist_id, "key": CONFIG.youtube_api_key, "maxResults": 50 }
     for x in range(int(total_videos / 50)+1):
         response = requests.get("https://www.googleapis.com/youtube/v3/playlistItems", params=params, timeout=5)
         data = response.json()
@@ -116,7 +116,7 @@ def get_youtube_video(video: list | str, album: str) -> list:
     return songs
 
 async def fetch_video_data(session, chunk):
-    params = { "part": "snippet,contentDetails", "id": ",".join(chunk), "key": settings.youtube_api_key }
+    params = { "part": "snippet,contentDetails", "id": ",".join(chunk), "key": CONFIG.youtube_api_key }
 
     async with session.get("https://www.googleapis.com/youtube/v3/videos", params=params, timeout=5) as response:
         if response.status == 200:
@@ -234,11 +234,11 @@ def download_song(song: dict, track_number: int = 1):
             # Sanitize title for filename and move to download dir
             title = sanitize_filename(song.get('title', info.get('title', 'Unknown Title')))
 
-            if settings.group_by_album:
+            if CONFIG.group_by_album:
                 raw_album_name = song.get("album")
                 clean_album_name = re.sub(r'(?i)^album\s*-\s*', '', raw_album_name).strip()
                 album_name = sanitize_filename(clean_album_name)
-                final_dir = os.path.join(settings.download_dir, album_name)
+                final_dir = os.path.join(CONFIG.download_dir, album_name)
 
             os.makedirs(final_dir, exist_ok=True)
             final_path = os.path.join(final_dir, f"{title}.mp3")
