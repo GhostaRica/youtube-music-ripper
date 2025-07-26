@@ -1,7 +1,7 @@
 import curses
 
-from Menus.download import download_menu
-from Menus.settings import settings_menu
+from Menus.download_menu import download_menu
+from Menus.settings_menu import settings_menu
 
 menu_items = ["Download", "Settings", "Exit"]
 
