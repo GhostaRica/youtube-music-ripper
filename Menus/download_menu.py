@@ -1,8 +1,10 @@
+import asyncio
 import curses
 from urllib.parse import urlparse, parse_qs
 
-from Modules import youtube
+from Modules import youtube, image_utils
 from Menus import helper
+from classes.music.album import Album
 
 def format_duration(seconds):
     minutes = int(seconds) // 60
@@ -28,13 +30,17 @@ def download_menu(stdscr):
             if not playlist_id:
                 continue
 
-            songs = youtube.get_youtube_playlist(playlist_id)
-            if len(songs) > 1:
-                songs = playlist_songs_menu(stdscr, songs)
+            album = asyncio.run(youtube.get_youtube_playlist(playlist_id))
+            if album.get_songs_count() == 1:
+                # TODO when there is only one song i should show the single song menu
+                pass
+            else:
+                playlist_menu(stdscr, album)
 
-            start_download(stdscr, songs)
+            start_download(stdscr, album)
 
         elif "youtu" in url:
+            # TODO the share url is a little annoying https://youtu.be/dxzrRB25qls?si=LvgomOOLsaaWS7BS the id is before the ? so this wont work for these links
             parsed_url = urlparse(url)
             query = parse_qs(parsed_url.query)
             video_id = query.get("v", [None])[0]
@@ -45,7 +51,7 @@ def download_menu(stdscr):
             songs = [youtube.get_youtube_video(video_id)]
             start_download(stdscr, songs)
 
-def playlist_songs_menu(stdscr, songs):
+def playlist_menu(stdscr, album: Album):
     curses.curs_set(0)
     current = 0
 
@@ -58,12 +64,12 @@ def playlist_songs_menu(stdscr, songs):
 
         max_visible = height - 3
         start = max(0, current - max_visible + 1)
-        end = min(len(songs), start + max_visible)
+        end = min(album.get_songs_count(), start + max_visible)
 
         for idx in range(start, end):
-            song = songs[idx]
-            marker = "[X]" if song.get("selected", True) else "[ ]"
-            title_str = f"{marker} {song['title']} ({format_duration(song['duration'])})"
+            song = album.songs[idx]
+            marker = "[X]" if song.selected else "[ ]"
+            title_str = f"{marker} {song.title} ({format_duration(song.duration)})"
             display_line = title_str[:width - 4]
             y = 2 + idx - start
 
@@ -76,18 +82,18 @@ def playlist_songs_menu(stdscr, songs):
 
         if key == curses.KEY_UP and current > 0:
             current -= 1
-        elif key == curses.KEY_DOWN and current < len(songs) - 1:
+        elif key == curses.KEY_DOWN and current < album.get_songs_count() - 1:
             current += 1
         elif key in (curses.KEY_ENTER, 10, 13):
             break
         elif key == ord(' '):
-            songs[current]["selected"] = not songs[current].get("selected", True)
+            album.songs[current].selected = not album.songs[current].selected
         elif key == ord('e'):
-            song_menu(stdscr, songs[current])
+            song_menu(stdscr, album.songs[current])
 
         stdscr.refresh()
 
-    return [song for song in songs if song.get("selected", True)]
+    return [song for song in album.songs if song.selected]
 
 def song_menu(stdscr, song):
     curses.curs_set(1)
@@ -137,17 +143,18 @@ def song_menu(stdscr, song):
         elif key in (ord('q'), ord('Q')):
             break
 
-def start_download(stdscr, songs):
-    total = len(songs)
+def start_download(stdscr, album: Album):
+    total = album.get_selected_songs_count()
+    downloaded_cover = image_utils.download_thumbnail(album.cover_url)
 
-    for index, song in enumerate(songs):
+    for index, song in enumerate(album.get_selected_songs(), start=1):
         stdscr.clear()
         curses.curs_set(0)
         helper.print_title(stdscr, "📥 Downloading songs...\n")
-        stdscr.addstr(2, 0, f"Currently downloading: ({index + 1}/{total}): {song['title']}")
+        stdscr.addstr(2, 0, f"Currently downloading: ({index}/{total}): {song.title}")
         stdscr.refresh()
 
-        youtube.download_song(song, index+1)
+        youtube.download_song(song, album.name, album.artist, downloaded_cover)
 
     stdscr.addstr(4, 0, "All songs downloaded. Press any key to return.")
     stdscr.refresh()

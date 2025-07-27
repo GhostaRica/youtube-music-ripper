@@ -10,11 +10,20 @@ class AlbumType(str, Enum):
 
 @dataclass
 class Album:
-    title: str
-    album_artist: str
+    name: str = ""
+    artist: str = ""
     cover_url: Optional[str] = None
-    album_type: AlbumType = AlbumType.ALBUM
+    type: AlbumType = AlbumType.ALBUM
     songs: List[Song] = field(default_factory=list)
 
     def add_song(self, song: Song):
         self.songs.append(song)
+
+    def get_songs_count(self) -> int:
+        return len(self.songs)
+
+    def get_selected_songs(self) -> List[Song]:
+        return [song for song in self.songs if song.selected]
+    
+    def get_selected_songs_count(self) -> List[Song]:
+        return len([song for song in self.songs if song.selected])
