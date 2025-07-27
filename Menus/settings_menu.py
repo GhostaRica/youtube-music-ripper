@@ -6,8 +6,8 @@ def settings_menu(stdscr):
     curses.curs_set(0)
 
     options = [
-        "YouTube API Key",
         "Download Directory",
+        "Group by Artist Folder",
         "Group by Album Folder",
         "Return to Main Menu"
     ]
@@ -18,15 +18,15 @@ def settings_menu(stdscr):
         helper.print_title(stdscr, "⚙️ Settings")
         stdscr.addstr("Use ↑↓ to navigate, Enter to select.\n\n")
 
-        key_display = CONFIG.youtube_api_key or "(not set)"
         dir_display = CONFIG.download_dir or "(not set)"
         group_by_album = "On" if CONFIG.group_by_album else "Off"
+        group_by_artist = "On" if CONFIG.group_by_artist else "Off"
 
         for idx, option in enumerate(options):
             if idx == 0:
-                label = f"{option}: {key_display}"
-            elif idx == 1:
                 label = f"{option}: {dir_display}"
+            elif idx == 1:
+                label = f"{option}: {group_by_artist}"
             elif idx == 2:
                 label = f"{option}: {group_by_album}"
             else:
@@ -49,23 +49,16 @@ def settings_menu(stdscr):
             if selected_idx == 0:
                 edit_setting(
                     stdscr,
-                    title="✏️ Edit YouTube API Key",
-                    prompt="Enter new API key",
-                    get_value=lambda: CONFIG.youtube_api_key,
-                    set_value=lambda val: setattr(CONFIG, 'youtube_api_key', val),
-                )
-            elif selected_idx == 1:
-                edit_setting(
-                    stdscr,
                     title="📁 Edit Download Directory",
                     prompt="Enter new path",
                     get_value=lambda: CONFIG.download_dir,
                     set_value=lambda val: setattr(CONFIG, 'download_dir', val),
                 )
 
+            elif selected_idx == 1:
+                CONFIG.group_by_artist = not CONFIG.group_by_artist
             elif selected_idx == 2:
                 CONFIG.group_by_album = not CONFIG.group_by_album
-
             elif selected_idx == 3:
                 break
 
@@ -123,4 +116,3 @@ def edit_setting(stdscr, title, prompt, get_value, set_value):
 
     set_value(''.join(input_buffer).strip())
     curses.curs_set(0)
-

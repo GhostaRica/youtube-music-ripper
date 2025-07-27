@@ -18,20 +18,9 @@ with CONFIG_FILE.open("r", encoding="utf-8") as f:
 @dataclass
 class Config:
     def __init__(self):
-        self._youtube_api_key = JsonConfig.get("YOUTUBE_API_KEY", "")
         self._download_dir = JsonConfig.get("DOWNLOAD_DIR", str(Path.cwd() / "downloads"))
         self._group_by_artist = JsonConfig.get("GROUP_BY_ARTIST", True)
         self._group_by_album = JsonConfig.get("GROUP_BY_ALBUM", True)
-
-    @property
-    def youtube_api_key(self) -> str:
-        return self._youtube_api_key
-
-    @youtube_api_key.setter
-    def youtube_api_key(self, new_key: str) -> None:
-        self._youtube_api_key = new_key
-        JsonConfig["YOUTUBE_API_KEY"] = new_key
-        self._save_json()
 
     @property
     def download_dir(self) -> str:
