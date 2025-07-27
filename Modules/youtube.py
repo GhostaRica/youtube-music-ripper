@@ -12,7 +12,7 @@ from classes.exceptions import PlaylistNotFoundError, PrivatePlaylistError, Unkn
 from classes.music import Album, AlbumType, Song
 
 # TODO We should probably somehow provide information of progress to the menu
-async def get_youtube_playlist(playlist_id) -> Album:
+def get_youtube_playlist(playlist_id) -> Album:
     """Get an Album from youtube with a playlist_id"""
 
     playlist_url = f"https://www.youtube.com/playlist?list={playlist_id}"
@@ -55,8 +55,33 @@ async def get_youtube_playlist(playlist_id) -> Album:
         album.artist = album_artists.pop() if len(album_artists) == 1 else "Various Artists"
         return album
 
-def get_youtube_video() -> Album:
-    pass
+def get_youtube_video(video_id) -> Album:
+    """Get an Album-like object for a single YouTube video"""
+
+    video_url = f"https://music.youtube.com/watch?v={video_id}"
+    ydl_opts = {
+        'quiet': True,
+    }
+
+    album = Album()
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(video_url, download=False)
+
+        album.name = re.sub(r'(?i)^album\s*-\s*', '', info.get("title")).strip()
+        album.cover_url = info.get("thumbnail")
+        album.type = AlbumType.SINGLE
+
+        song = Song()
+        song.video_id = video_id
+        song.title = info.get("title")
+        song.artists = list(dict.fromkeys(info.get("artists", []))) or [info.get("artist") or info.get("uploader")]
+        song.duration = info.get("duration")
+        song.year = info.get("release_year")
+
+        album.add_song(song)
+        album.artist = song.artists[0] if len(song.artists) == 1 else "Various Artists"
+
+        return album
 
 def download_song(song: Song, album_name: str, album_artist: str, album_cover_path: str):
     with TemporaryDirectory() as temp_dir:

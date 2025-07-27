@@ -30,7 +30,7 @@ def download_menu(stdscr):
             if not playlist_id:
                 continue
 
-            album = asyncio.run(youtube.get_youtube_playlist(playlist_id))
+            album = youtube.get_youtube_playlist(playlist_id)
             if album.get_songs_count() == 1:
                 # TODO when there is only one song i should show the single song menu
                 pass
@@ -40,16 +40,21 @@ def download_menu(stdscr):
             start_download(stdscr, album)
 
         elif "youtu" in url:
-            # TODO the share url is a little annoying https://youtu.be/dxzrRB25qls?si=LvgomOOLsaaWS7BS the id is before the ? so this wont work for these links
             parsed_url = urlparse(url)
+
+            # Case 1: Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
             query = parse_qs(parsed_url.query)
             video_id = query.get("v", [None])[0]
+
+            # Case 2: Share URL: https://youtu.be/VIDEO_ID?si=...
+            if not video_id and parsed_url.netloc == "youtu.be":
+                video_id = parsed_url.path.lstrip("/")
 
             if not video_id:
                 continue
 
-            songs = [youtube.get_youtube_video(video_id)]
-            start_download(stdscr, songs)
+            album = youtube.get_youtube_video(video_id)
+            start_download(stdscr, album)
 
 def playlist_menu(stdscr, album: Album):
     curses.curs_set(0)
