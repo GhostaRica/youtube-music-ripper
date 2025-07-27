@@ -83,7 +83,7 @@ def get_youtube_video(video_id) -> Album:
 
         return album
 
-def download_song(song: Song, album_name: str, album_artist: str, album_cover_path: str):
+def download_song(song: Song, album_name: str, album_artist: str, album_type: AlbumType, album_cover_path: str):
     with TemporaryDirectory() as temp_dir:
         url = f"https://www.youtube.com/watch?v={song.video_id}"
 
@@ -135,7 +135,7 @@ def download_song(song: Song, album_name: str, album_artist: str, album_cover_pa
             album_artist = sanitize_filename(raw_album_artist)
             final_dir = os.path.join(CONFIG.download_dir, album_artist)
 
-        if CONFIG.group_by_album:
+        if CONFIG.group_by_album and album_type != AlbumType.SINGLE:
             raw_album_name = album_name
             album_name = sanitize_filename(raw_album_name)
             final_dir = os.path.join(final_dir, album_name)
