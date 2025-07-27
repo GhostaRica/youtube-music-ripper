@@ -4,7 +4,7 @@ This Python script allows you to download YouTube videos or audio using [`yt-dlp
 
 # Features
 
-* Download audio from a YouTube URL
+* Download songs from a YouTube playlist or video
 * Automatically embed thumbnails and metadata
 * Easy to run in a virtual environment
 
@@ -48,7 +48,7 @@ This Python script allows you to download YouTube videos or audio using [`yt-dlp
 Instead of running `main.py` directly, run the launcher script:
 
 ```bash
-python launcher.py <youtube_link> [options]
+python launcher.py
 ```
 
 The launcher script will:
@@ -62,17 +62,11 @@ The launcher script will:
 If you want to **bypass the launcher’s auto-update functionality**, this is useful incase the machine you are running this on doesn't have git installed this way you can run the downloader script directly:
 
 ```bash
-python main.py <youtube_link> [options]
+python main.py
 ```
 
 However, running the launcher is recommended to always keep your downloader script up to date.
 Once everything is set up, run the script with a YouTube URL:
-
-### Example:
-
-```bash
-python main.py https://www.youtube.com/watch?v=dQw4w9WgXcQ
-```
 
 # 📁 Output
 
