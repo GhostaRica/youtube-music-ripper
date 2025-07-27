@@ -27,21 +27,16 @@ async def get_youtube_playlist(playlist_id) -> Album:
             info = ydl.extract_info(playlist_url, download=False)
         except DownloadError as e:
             error_msg = str(e).lower()
-
-            if "404 not found" in error_msg or "video unavailable" in error_msg:
+            if "404" in error_msg or "video unavailable" in error_msg:
                 raise PlaylistNotFoundError(playlist_id) from e
-            elif "private" in error_msg or "sign in to view this video" in error_msg:
+            elif "private" in error_msg or "sign in" in error_msg:
                 raise PrivatePlaylistError(playlist_id) from e
             else:
                 raise UnknownPlaylistError(f"Unknown error occurred: {e}") from e
 
         entries = info["entries"]
-
-        raw_album_name = info.get('title')
-        album.name = re.sub(r'(?i)^album\s*-\s*', '', raw_album_name).strip()
-
+        album.name = re.sub(r'(?i)^album\s*-\s*', '', info.get('title')).strip()
         album.cover_url = entries[0]["thumbnails"][-1]["url"]
-
         album.type = AlbumType.ALBUM if info["playlist_count"] > 1 else AlbumType.SINGLE
 
         album_artists = set()
@@ -49,7 +44,7 @@ async def get_youtube_playlist(playlist_id) -> Album:
             song = Song()
             song.video_id = entry.get("id")
             song.title = entry.get("title")
-            song.artists = list(dict.fromkeys(entry["artists"]))
+            song.artists = list(dict.fromkeys(entry.get("artists", [])))
             song.duration = entry.get("duration")
             song.year = entry.get("release_year")
             song.track_number = index
@@ -57,11 +52,7 @@ async def get_youtube_playlist(playlist_id) -> Album:
 
             album_artists.add(entry.get('artist') or entry.get('uploader'))
 
-        if len(album_artists) == 1:
-            album.artist = album_artists.pop()
-        else:
-            album.artist = "Various Artists"
-
+        album.artist = album_artists.pop() if len(album_artists) == 1 else "Various Artists"
         return album
 
 def get_youtube_video() -> Album:
