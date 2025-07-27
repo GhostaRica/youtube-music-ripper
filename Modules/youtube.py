@@ -39,7 +39,6 @@ def get_youtube_playlist(playlist_id) -> Album:
         album.cover_url = entries[0]["thumbnails"][-1]["url"]
         album.type = AlbumType.ALBUM if info["playlist_count"] > 1 else AlbumType.SINGLE
 
-        album_artists = set()
         for index, entry in enumerate(entries, start=1):
             song = Song()
             song.video_id = entry.get("id")
@@ -50,9 +49,13 @@ def get_youtube_playlist(playlist_id) -> Album:
             song.track_number = index
             album.add_song(song)
 
-            album_artists.add(entry.get('artist') or entry.get('uploader'))
+        first_entry = entries[0]
+        first_artist_list = list(dict.fromkeys(first_entry.get("artists", [])))
 
-        album.artist = album_artists.pop() if len(album_artists) == 1 else "Various Artists"
+        if first_artist_list:
+            album.artist = first_artist_list[0]
+        else:
+            album.artist = first_entry.get("artist") or first_entry.get("uploader")
         return album
 
 def get_youtube_video(video_id) -> Album:

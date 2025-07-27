@@ -13,7 +13,7 @@ class Album:
     name: str = ""
     artist: str = ""
     cover_url: Optional[str] = None
-    type: AlbumType = AlbumType.ALBUM
+    _type: AlbumType = AlbumType.ALBUM
     songs: List[Song] = field(default_factory=list)
 
     def add_song(self, song: Song):
@@ -24,6 +24,16 @@ class Album:
 
     def get_selected_songs(self) -> List[Song]:
         return [song for song in self.songs if song.selected]
-    
+
     def get_selected_songs_count(self) -> List[Song]:
         return len([song for song in self.songs if song.selected])
+
+    @property
+    def type(self) -> AlbumType:
+        if self.get_selected_songs_count() == 1:
+            return AlbumType.SINGLE
+        return self._type
+
+    @type.setter
+    def type(self, value: AlbumType):
+        self._type = value

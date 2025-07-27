@@ -4,7 +4,7 @@ from urllib.parse import urlparse, parse_qs
 
 from Modules import youtube, image_utils
 from Menus import helper
-from classes.music.album import Album
+from classes.music.album import Album, AlbumType
 
 def format_duration(seconds):
     minutes = int(seconds) // 60
