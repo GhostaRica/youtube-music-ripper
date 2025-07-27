@@ -3,12 +3,12 @@ import re
 import shutil
 from tempfile import TemporaryDirectory
 
-from yt_dlp import YoutubeDL
+from yt_dlp import YoutubeDL, DownloadError
 from mutagen.id3 import ID3, APIC
 from mutagen.easyid3 import EasyID3
 
 from Modules.config import CONFIG
-from classes.exceptions import PlaylistDoesNotExist, VideoDoesNotExist
+from classes.exceptions import PlaylistNotFoundError, PrivatePlaylistError, UnknownPlaylistError
 from classes.music import Album, AlbumType, Song
 
 # TODO We should probably somehow provide information of progress to the menu
@@ -23,7 +23,18 @@ async def get_youtube_playlist(playlist_id) -> Album:
 
     album = Album()
     with YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(playlist_url, download=False)
+        try:
+            info = ydl.extract_info(playlist_url, download=False)
+        except DownloadError as e:
+            error_msg = str(e).lower()
+
+            if "404 not found" in error_msg or "video unavailable" in error_msg:
+                raise PlaylistNotFoundError(playlist_id) from e
+            elif "private" in error_msg or "sign in to view this video" in error_msg:
+                raise PrivatePlaylistError(playlist_id) from e
+            else:
+                raise UnknownPlaylistError(f"Unknown error occurred: {e}") from e
+
         entries = info["entries"]
 
         raw_album_name = info.get('title')

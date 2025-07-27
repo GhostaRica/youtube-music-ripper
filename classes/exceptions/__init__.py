@@ -1,3 +1,3 @@
-from .playlist_does_not_exist import PlaylistDoesNotExist
+from .playlist_exception import PlaylistNotFoundError, PrivatePlaylistError, UnknownPlaylistError
 
-__all__ = ["PlaylistDoesNotExist"]
+__all__ = ["PlaylistNotFoundError", "PrivatePlaylistError", "UnknownPlaylistError"]
