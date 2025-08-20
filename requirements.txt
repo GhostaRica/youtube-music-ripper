@@ -1,6 +1,6 @@
 mutagen==1.47.0
 pillow==11.2.1
 requests==2.32.3
-yt-dlp==2025.8.11
+yt-dlp==2025.8.20
 aiohttp==3.12.14
 platformdirs==4.3.8
