@@ -18,6 +18,7 @@ def get_youtube_playlist(playlist_id) -> Album:
     playlist_url = f"https://www.youtube.com/playlist?list={playlist_id}"
     ydl_opts = {
         'extract_flat': False,
+        'no_warnings': True,
         'quiet': True,
     }
 
@@ -64,6 +65,7 @@ def get_youtube_video(video_id) -> Album:
     video_url = f"https://music.youtube.com/watch?v={video_id}"
     ydl_opts = {
         'quiet': True,
+        'no_warnings': True,
     }
 
     album = Album()
@@ -102,7 +104,8 @@ def download_song(song: Song, album_name: str, album_artist: str, album_type: Al
             'noprogress': True,
             'ignoreerrors': True,
             'noplaylist': True,
-            'extract_flat': False
+            'extract_flat': False,
+            'no_warnings': True,
         }
 
         with YoutubeDL(ydl_opts) as ydl:
