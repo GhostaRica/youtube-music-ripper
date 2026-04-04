@@ -1,0 +1,53 @@
+name: Build Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller windows-curses
+        shell: bash
+
+      - name: Download and extract ffmpeg
+        shell: bash
+        run: |
+          curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          unzip -q ffmpeg.zip -d ffmpeg_temp
+          mkdir -p ffmpeg
+          cp ffmpeg_temp/*/bin/* ffmpeg/
+
+      - name: Build with PyInstaller
+        shell: bash
+        run: |
+          pyinstaller --onefile main.py -n youtube-music-ripper \
+              --add-binary "ffmpeg/ffmpeg.exe;." \
+              --add-binary "ffmpeg/ffprobe.exe;."
+
+      - name: Collect artifact
+        shell: bash
+        run: |
+          mkdir -p release
+          cp dist/youtube-music-ripper.exe release/
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*

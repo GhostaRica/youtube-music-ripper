@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 import re
 import shutil
+import sys
 from tempfile import TemporaryDirectory
 
 from yt_dlp import YoutubeDL, DownloadError
@@ -10,6 +12,22 @@ from mutagen.easyid3 import EasyID3
 from Modules.config import CONFIG
 from classes.exceptions import PlaylistNotFoundError, PrivatePlaylistError, UnknownPlaylistError
 from classes.music import Album, AlbumType, Song
+
+# ----------------------
+# Ensure yt-dlp can find ffmpeg/ffprobe
+# ----------------------
+try:
+    # If running as a PyInstaller one-file exe
+    base_path = sys._MEIPASS
+except AttributeError:
+    # Running normally (not bundled)
+    base_path = os.path.abspath(".")
+
+# ffmpeg binaries are in the same folder we bundled them into
+ffmpeg_folder = Path(base_path)
+
+# Prepend to PATH so yt-dlp can find ffmpeg/ffprobe
+os.environ["PATH"] = str(ffmpeg_folder) + os.pathsep + os.environ.get("PATH", "")
 
 # TODO We should probably somehow provide information of progress to the menu
 def get_youtube_playlist(playlist_id) -> Album:

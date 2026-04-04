@@ -1,0 +1,52 @@
+name: Build Linux Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+        shell: bash
+
+      - name: Download ffmpeg
+        run: |
+          mkdir ffmpeg
+          wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O ffmpeg.tar.xz
+          tar -xf ffmpeg.tar.xz --strip-components=1 -C ffmpeg
+        shell: bash
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile main.py -n youtube-music-ripper \
+              --add-binary "ffmpeg/ffmpeg:." \
+              --add-binary "ffmpeg/ffprobe:."
+        shell: bash
+
+      - name: Collect artifact
+        run: |
+          mkdir release
+          cp dist/youtube-music-ripper release/
+        shell: bash
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
