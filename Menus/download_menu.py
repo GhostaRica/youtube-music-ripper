@@ -14,7 +14,7 @@ def format_duration(seconds):
 def download_menu(stdscr):
     while True:
         stdscr.clear()
-        helper.print_title(stdscr, "📥 Download Menu (WIP)")
+        helper.print_title(stdscr, "📥 Download Menu")
         stdscr.addstr("Paste a youtube URL and press Enter:\n")
         stdscr.refresh()
 
@@ -22,39 +22,41 @@ def download_menu(stdscr):
         url = stdscr.getstr(2, 0).decode("utf-8")
         curses.noecho()
 
-        if "youtube.com/playlist" in url:
-            parsed_url = urlparse(url)
-            query = parse_qs(parsed_url.query)
-            playlist_id = query.get("list", [None])[0]
+        pre_download_menu(stdscr, url)
 
-            if not playlist_id:
-                continue
+def pre_download_menu(stdscr, url:str):
+    stdscr.clear()
+    helper.print_title(stdscr, "📥 Download Menu")
+    stdscr.addstr("Please wait whilst song metadata is being loaded:\n")
+    stdscr.refresh()
 
-            album = youtube.get_youtube_playlist(playlist_id)
-            if album.get_songs_count() == 1:
-                # TODO when there is only one song i should show the single song menu
-                pass
-            else:
-                playlist_menu(stdscr, album)
+    if "youtube.com/playlist" in url:
+        parsed_url = urlparse(url)
+        query = parse_qs(parsed_url.query)
+        playlist_id = query.get("list", [None])[0]
 
-            start_download(stdscr, album)
+        album = youtube.get_youtube_playlist(playlist_id)
+        if album.get_songs_count() == 1:
+            # TODO when there is only one song i should show the single song menu
+            pass
+        else:
+            playlist_menu(stdscr, album)
 
-        elif "youtu" in url:
-            parsed_url = urlparse(url)
+        start_download(stdscr, album)
 
-            # Case 1: Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
-            query = parse_qs(parsed_url.query)
-            video_id = query.get("v", [None])[0]
+    elif "youtu" in url:
+        parsed_url = urlparse(url)
 
-            # Case 2: Share URL: https://youtu.be/VIDEO_ID?si=...
-            if not video_id and parsed_url.netloc == "youtu.be":
-                video_id = parsed_url.path.lstrip("/")
+        # Case 1: Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+        query = parse_qs(parsed_url.query)
+        video_id = query.get("v", [None])[0]
 
-            if not video_id:
-                continue
+        # Case 2: Share URL: https://youtu.be/VIDEO_ID?si=...
+        if not video_id and parsed_url.netloc == "youtu.be":
+            video_id = parsed_url.path.lstrip("/")
 
-            album = youtube.get_youtube_video(video_id)
-            start_download(stdscr, album)
+        album = youtube.get_youtube_video(video_id)
+        start_download(stdscr, album)
 
 def playlist_menu(stdscr, album: Album):
     curses.curs_set(0)
