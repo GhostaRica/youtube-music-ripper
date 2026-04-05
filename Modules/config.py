@@ -18,7 +18,7 @@ with CONFIG_FILE.open("r", encoding="utf-8") as f:
 @dataclass
 class Config:
     def __init__(self):
-        self._download_dir = JsonConfig.get("DOWNLOAD_DIR", str(Path.cwd() / "downloads"))
+        self._download_dir = JsonConfig.get("DOWNLOAD_DIR", str(Path.home() / "Downloads"))
         self._group_by_artist = JsonConfig.get("GROUP_BY_ARTIST", True)
         self._group_by_album = JsonConfig.get("GROUP_BY_ALBUM", True)
 
