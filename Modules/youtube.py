@@ -105,6 +105,35 @@ def get_youtube_video(video_id) -> Album:
         album.artist = song.artists[0] if len(song.artists) == 1 else "Various Artists"
 
         return album
+    
+def get_youtube_playlist_video_ids(playlist_id) -> list[str]:
+    playlist_url = f"https://www.youtube.com/playlist?list={playlist_id}"
+    ydl_opts = {
+        'extract_flat': False,
+        'no_warnings': True,
+        'quiet': True,
+    }
+
+    with YoutubeDL(ydl_opts) as ydl:
+        try:
+            info = ydl.extract_info(playlist_url, download=False)
+        except DownloadError as e:
+            error_msg = str(e).lower()
+            if "404" in error_msg or "video unavailable" in error_msg:
+                raise PlaylistNotFoundError(playlist_id) from e
+            elif "private" in error_msg or "sign in" in error_msg:
+                raise PrivatePlaylistError(playlist_id) from e
+            else:
+                raise UnknownPlaylistError(f"Unknown error occurred: {e}") from e
+
+        entries = info["entries"]
+
+        video_ids = []
+        for index, entry in enumerate(entries, start=1):
+            video_id = entry.get("id")
+            video_ids.append(video_id)
+    
+        return video_ids
 
 def download_song(song: Song, album_name: str, album_artist: str, album_type: AlbumType, album_cover_path: str):
     with TemporaryDirectory() as temp_dir:

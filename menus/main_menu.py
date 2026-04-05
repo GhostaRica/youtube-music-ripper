@@ -3,6 +3,7 @@ from menus.menu_item import MenuItem
 from menus.utils.helper import UiHelper
 from menus.settings.settings_menu import settings_menu
 from menus.download.download_album_menu import download_album_menu
+from menus.download.donwload_playlist_menu import download_playlist_menu
 
 def main_menu(stdscr):
     helper = UiHelper(stdscr)
@@ -15,7 +16,7 @@ def main_menu(stdscr):
     
     menu_items = [
         MenuItem("download_album", "Download Album", action=download_album_action),
-        MenuItem("download_playlist", "Download Playlist (WIP)", action=download_playlist_action),
+        MenuItem("download_playlist", "Download Playlist (Experimental)", action=download_playlist_action),
         MenuItem("settings", "Settings", action=settings_action),
         MenuItem("exit", "Exit", action=exit_action),
     ]
@@ -33,8 +34,7 @@ def download_album_action(stdscr):
     download_album_menu(stdscr)
 
 def download_playlist_action(stdscr):
-    # download_menu(stdscr)
-    pass
+    download_playlist_menu(stdscr)
 
 def settings_action(stdscr):
     settings_menu(stdscr)
