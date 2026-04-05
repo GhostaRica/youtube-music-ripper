@@ -3,19 +3,25 @@ import curses
 from urllib.parse import urlparse, parse_qs
 
 from Modules import youtube, image_utils
-from Menus import helper
+from menus.utils.helper import UiHelper
 from classes.music.album import Album, AlbumType
+
+#TODO this needs a refactor to use the general ui helper instead of doing all this custom stuff
 
 def format_duration(seconds):
     minutes = int(seconds) // 60
     seconds = int(seconds) % 60
     return f"{minutes}:{seconds:02d}"
 
-def download_menu(stdscr):
+def download_album_menu(stdscr):
+    helper = UiHelper(stdscr)
+    title = "📥 Download Menu"
+    subtitle = "Paste a youtube URL and press Enter:\n"
+
     while True:
         stdscr.clear()
-        helper.print_title(stdscr, "📥 Download Menu")
-        stdscr.addstr("Paste a youtube URL and press Enter:\n")
+        helper.render_title(title)
+        helper.render_subtitle(subtitle)
         stdscr.refresh()
 
         curses.echo()
@@ -25,8 +31,10 @@ def download_menu(stdscr):
         pre_download_menu(stdscr, url)
 
 def pre_download_menu(stdscr, url:str):
+    helper = UiHelper(stdscr)
+
     stdscr.clear()
-    helper.print_title(stdscr, "📥 Download Menu")
+    helper.render_title("📥 Download Menu")
     stdscr.addstr("Please wait whilst song metadata is being loaded:\n")
     stdscr.refresh()
 
@@ -103,6 +111,7 @@ def playlist_menu(stdscr, album: Album):
     return [song for song in album.songs if song.selected]
 
 def song_menu(stdscr, song):
+    helper = UiHelper(stdscr)
     curses.curs_set(1)
     current = 0
     fields = ["start", "end"]
@@ -115,7 +124,7 @@ def song_menu(stdscr, song):
         stdscr.clear()
         height, width = stdscr.getmaxyx()
 
-        helper.print_title(stdscr, f"{song['title']}")
+        helper.render_title(f"{song['title']}")
         stdscr.addstr(2, 0, f"Duration: {format_duration(int(song['duration']))}")
 
         for idx, field in enumerate(fields):
@@ -151,13 +160,14 @@ def song_menu(stdscr, song):
             break
 
 def start_download(stdscr, album: Album):
+    helper = UiHelper(stdscr)
     total = album.get_selected_songs_count()
     downloaded_cover = image_utils.download_thumbnail(album.cover_url)
 
     for index, song in enumerate(album.get_selected_songs(), start=1):
         stdscr.clear()
         curses.curs_set(0)
-        helper.print_title(stdscr, "📥 Downloading songs...\n")
+        helper.render_title("📥 Downloading songs...\n")
         stdscr.addstr(2, 0, f"Currently downloading: ({index}/{total}): {song.title}")
         stdscr.refresh()
 
