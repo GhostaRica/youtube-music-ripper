@@ -40,7 +40,7 @@ def edit_download_dir(stdscr):
         CONFIG.download_dir
     )
 
-    if result is not None:
+    if result != "__ESC__" or result != "":
         CONFIG.download_dir = result
 
 def toggle_group_artist(stdscr):

@@ -47,7 +47,7 @@ class UiHelper:
             elif key == 27: #ESC
                 return None
             
-    def render_input_menu(self, title: str, prompt: str, value="") -> str|None:
+    def render_input_menu(self, title: str, prompt: str, value="") -> str:
         """
         Edits a string input in curses and returns the updated value.
         
@@ -57,7 +57,7 @@ class UiHelper:
             value (str): Initial text to edit.
         
         Returns:
-            str or None: The updated value, or None if ESC was pressed.
+            str: The updated value, or '__ESC__' if ESC was pressed.
         """
         self.stdscr.clear()
         curses.curs_set(1)
@@ -84,7 +84,7 @@ class UiHelper:
 
             if key == 27:  # ESC
                 curses.curs_set(0)
-                return None
+                return "__ESC__"
 
             elif key in (10, 13):  # Enter
                 break

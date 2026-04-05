@@ -1,10 +1,9 @@
-import asyncio
 import curses
 from urllib.parse import urlparse, parse_qs
 
 from Modules import youtube, image_utils
 from menus.utils.helper import UiHelper
-from classes.music.album import Album, AlbumType
+from classes.music.album import Album
 
 #TODO this needs a refactor to use the general ui helper instead of doing all this custom stuff
 
@@ -16,19 +15,16 @@ def format_duration(seconds):
 def download_album_menu(stdscr):
     helper = UiHelper(stdscr)
     title = "📥 Download Menu"
-    subtitle = "Paste a youtube URL and press Enter:\n"
+    subtitle = "Provide a youtube URL and press Enter"
 
     while True:
-        stdscr.clear()
-        helper.render_title(title)
-        helper.render_subtitle(subtitle)
-        stdscr.refresh()
+        result = helper.render_input_menu(title, subtitle)
 
-        curses.echo()
-        url = stdscr.getstr(2, 0).decode("utf-8")
-        curses.noecho()
+        if result == "__ESC__":
+            break
 
-        pre_download_menu(stdscr, url)
+        if result != "":
+            pre_download_menu(stdscr, result)
 
 def pre_download_menu(stdscr, url:str):
     helper = UiHelper(stdscr)
