@@ -1,7 +1,7 @@
 import requests
 from packaging.version import Version
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 GITHUB_USER = "GhostaRica"
 REPO_NAME = "youtube-music-ripper"
